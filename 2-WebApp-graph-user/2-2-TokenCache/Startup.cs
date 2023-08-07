@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
@@ -49,21 +50,21 @@ namespace _2_1_Call_MSGraph
                 .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
                     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
                         .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
-                        .AddDistributedTokenCaches();
+                        .AddSessionTokenCaches();
 
-            services.AddDistributedSqlServerCache(options =>
-            {
-                options.ConnectionString = Configuration.GetConnectionString("TokenCacheDbConnStr");
-                options.SchemaName = "dbo";
-                options.TableName = "TokenCache";
+            //services.AddDistributedSqlServerCache(options =>
+            //{
+            //    options.ConnectionString = Configuration.GetConnectionString("TokenCacheDbConnStr");
+            //    options.SchemaName = "dbo";
+            //    options.TableName = "TokenCache";
 
-                // You don't want the SQL token cache to be purged before the access token has expired. Usually
-                // access tokens expire after 1 hour (but this can be changed by token lifetime policies), whereas
+            //    // You don't want the SQL token cache to be purged before the access token has expired. Usually
+            //    // access tokens expire after 1 hour (but this can be changed by token lifetime policies), whereas
 
-                // the default sliding expiration for the distributed SQL database is 20 mins. 
-                // Use a value which is above 60 mins (or the lifetime of a token in case of longer lived tokens)
-                options.DefaultSlidingExpiration = TimeSpan.FromMinutes(90);
-            });
+            //    // the default sliding expiration for the distributed SQL database is 20 mins. 
+            //    // Use a value which is above 60 mins (or the lifetime of a token in case of longer lived tokens)
+            //    options.DefaultSlidingExpiration = TimeSpan.FromMinutes(90);
+            //});
 
             // Uncomment for Redis configuration. Be sure you DO NOT ADD BOTH an SQL cache and Redis cache
             //services.AddStackExchangeRedisCache(options =>
@@ -102,6 +103,8 @@ namespace _2_1_Call_MSGraph
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseSession();
 
             app.UseAuthentication();
             app.UseAuthorization();
